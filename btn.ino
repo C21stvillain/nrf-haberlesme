@@ -3,15 +3,12 @@
 #include <RF24.h>
 #include <Servo.h>
 
-#define button 8
 
 RF24 radio(10, 9); // CE, CSN
 const byte addresses[][6] = {"00001", "00002"};
 Servo myServo;
-boolean buttonState = 0;
 
 void setup() {
-  pinMode(button, INPUT);
   myServo.attach(7);
   radio.begin();
   radio.openWritingPipe(addresses[0]); // 00001
@@ -27,10 +24,13 @@ void loop() {
       int angleV = 0;
       radio.read(&angleV, sizeof(angleV));
       myServo.write(angleV);
+      Serial.print(angleV);
     }
     delay(5);
     radio.stopListening();
-    buttonState = digitalRead(button);
-    radio.write(&buttonState, sizeof(buttonState));
+    int potValue = analogRead(A0);
+    int angleV = map(potValue, 0, 1023, 0, 180);
+    radio.write(&angleV, sizeof(angleV));
+
   }
 }

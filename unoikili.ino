@@ -47,5 +47,9 @@ void loop() {
   Serial.print(" g: ");
   Serial.println(data.g);
 
- 
+  if (data.b == 125) { 
+    Serial.print("geldi adam geldi");
+    data.b = 124;
+    delay(1000);
+    }
 }

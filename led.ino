@@ -1,15 +1,14 @@
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
-
-#define led 8
+#include <Servo.h>
 
 RF24 radio(10, 9); // CE, CSN
 const byte addresses[][6] = {"00001", "00002"};
-boolean buttonState = 0;
+Servo myServo;
 
 void setup() {
-  pinMode(8, OUTPUT);
+  myServo.attach(7);
   radio.begin();
   radio.openWritingPipe(addresses[1]); // 00002
   radio.openReadingPipe(1, addresses[0]); // 00001
@@ -20,17 +19,17 @@ void loop() {
   delay(5);
   radio.stopListening();
   int potValue = analogRead(A0);
-  int angleValue = map(potValue, 0, 1023, 0, 180);
-  radio.write(&angleValue, sizeof(angleValue));
+  int angleV = map(potValue, 0, 1023, 0, 180);
+  radio.write(&angleV, sizeof(angleV));
 
   delay(5);
   radio.startListening();
-  while (!radio.available());
-  radio.read(&buttonState, sizeof(buttonState));
-  if (buttonState == HIGH) {
-    digitalWrite(led, HIGH);
-  }
-  else {
-    digitalWrite(led, LOW);
-  }
+  if ( radio.available()) {
+    while (radio.available()) {
+      int angleV = 0;
+      radio.read(&angleV, sizeof(angleV));
+      myServo.write(angleV);
+      Serial.print(angleV);
+}
+}
 }
